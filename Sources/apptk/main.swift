@@ -1,0 +1,3 @@
+import AppTKKit
+
+AppTKRoot.main()
