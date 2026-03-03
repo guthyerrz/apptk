@@ -1,5 +1,6 @@
 bin/
 .build/
+.claude/settings.local.json
 .swiftpm/
 kotlin/build/
 kotlin/.gradle/
