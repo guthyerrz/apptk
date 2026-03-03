@@ -1,3 +1,6 @@
+doctor:
+    ./scripts/doctor.sh
+
 build-jar:
     cd kotlin && ./gradlew jar
 

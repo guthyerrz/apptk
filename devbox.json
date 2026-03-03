@@ -1,13 +1,27 @@
 {
     "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
-    "packages": [],
+    "packages": [
+      "jdk@17",
+      "just"
+    ],
     "shell": {
       "init_hook": [
-        "echo 'Welcome to devbox!' > /dev/null"
+        "# Ensure JAVA_HOME is set (devbox usually sets it for jdk packages)",
+        "if [ -z \"$JAVA_HOME\" ]; then",
+        "  export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))",
+        "fi",
+        "",
+        "just doctor"
       ],
       "scripts": {
+        "build": [
+          "just build"
+        ],
         "test": [
-          "echo \"Error: no test specified\" && exit 1"
+          "just test"
+        ],
+        "run": [
+          "just run"
         ]
       }
     }
