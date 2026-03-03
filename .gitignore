@@ -1,6 +1,9 @@
+bin/
 .build/
 .swiftpm/
 kotlin/build/
 kotlin/.gradle/
 logs/
 *.ipa
+Sources/.DS_Store
+.DS_Store

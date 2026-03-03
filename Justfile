@@ -14,4 +14,4 @@ run *ARGS: build-jar
     swift run apptk {{ARGS}}
 
 install: build
-    cp .build/release/apptk ~/.local/bin/
+    cp .build/release/apptk .build/release/libSwiftJava.dylib bin/
