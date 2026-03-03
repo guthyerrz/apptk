@@ -1,0 +1,6 @@
+.build/
+.swiftpm/
+kotlin/build/
+kotlin/.gradle/
+logs/
+*.ipa

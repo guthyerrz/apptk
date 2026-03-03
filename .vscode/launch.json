@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:apptk}",
+            "name": "Debug apptk",
+            "target": "apptk",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug apptk"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:apptk}",
+            "name": "Release apptk",
+            "target": "apptk",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release apptk"
+        }
+    ]
+}
