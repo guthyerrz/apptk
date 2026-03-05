@@ -6,8 +6,16 @@ public struct AppTKRoot: ParsableCommand {
     public static let configuration = CommandConfiguration(
         commandName: "apptk",
         abstract: "Unified mobile app inspection CLI",
-        subcommands: [IPACommand.self, InfoCommand.self, PatchCommand.self]
+        version: apptkVersion,
+        subcommands: [
+            IPACommand.self, InfoCommand.self, PatchCommand.self,
+            UpgradeCommand.self, CheckUpdateCommand.self,
+        ]
     )
 
     public init() {}
+
+    public func validate() throws {
+        UpdateNotifier.checkAndNotify()
+    }
 }

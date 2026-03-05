@@ -5,13 +5,29 @@ Command-line toolkit for mobile app developers — inspect, patch, and re-sign i
 
 ## Installation
 
-Requires macOS 15+ and Swift 6.2+.
+Requires macOS 15+.
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/guthyerrz/apptk/main/scripts/install.sh | sh
+```
+
+This installs the prebuilt universal binary to `~/.local/bin/apptk`.
+
+### Build from source
+
+Requires Swift 6.2+.
 
 ```sh
 just install
 ```
 
-This builds the project and copies the binary to `~/.local/bin/apptk`.
+### Upgrade
+
+```sh
+apptk upgrade
+```
+
+apptk also checks for updates in the background and will notify you when a new version is available.
 
 ## Usage
 

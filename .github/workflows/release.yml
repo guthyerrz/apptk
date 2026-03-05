@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-and-release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: swiftlang/setup-swift@v2
+        with:
+          swift-version: "6.2"
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Write version
+        run: |
+          echo 'let apptkVersion = "${{ steps.version.outputs.version }}"' > Sources/AppTKKit/Version.swift
+
+      - name: Build arm64
+        run: swift build -c release --arch arm64
+
+      - name: Build x86_64
+        run: swift build -c release --arch x86_64
+
+      - name: Create universal binary
+        run: |
+          lipo -create \
+            .build/arm64-apple-macosx/release/apptk \
+            .build/x86_64-apple-macosx/release/apptk \
+            -output apptk
+          chmod +x apptk
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: apptk
+          generate_release_notes: true
