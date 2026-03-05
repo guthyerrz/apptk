@@ -1,7 +1,11 @@
 doctor:
     ./scripts/doctor.sh
 
-build:
+build clean="false":
+    #!/usr/bin/env bash
+    if [[ "{{ clean }}" == "true" ]]; then
+        swift package clean
+    fi
     swift build -c release
 
 test:
@@ -10,5 +14,5 @@ test:
 run *ARGS:
     swift run apptk {{ARGS}}
 
-install: build
+install clean="false": (build clean)
     cp .build/release/apptk bin/

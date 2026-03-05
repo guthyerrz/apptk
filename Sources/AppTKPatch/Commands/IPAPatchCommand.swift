@@ -11,7 +11,7 @@ public struct IPAPatchCommand: ParsableCommand {
     @Argument(help: "Path to the input .ipa file")
     var ipaPath: String
 
-    @Option(name: .long, help: "Path to the .framework to inject")
+    @Option(name: .long, help: "Path to the .framework or .xcframework to inject")
     var framework: String
 
     @Option(name: [.short, .long], help: "Output path for the patched IPA (default: <name>-patched.ipa)")
@@ -109,9 +109,41 @@ public struct IPAPatchCommand: ParsableCommand {
         return (key, value)
     }
 
+    private func resolveFrameworkPath(_ path: String) throws -> String {
+        guard path.hasSuffix(".xcframework") else { return path }
+
+        let plistPath = (path as NSString).appendingPathComponent("Info.plist")
+        guard let plistData = FileManager.default.contents(atPath: plistPath),
+              let plist = try PropertyListSerialization.propertyList(from: plistData, format: nil) as? [String: Any],
+              let libraries = plist["AvailableLibraries"] as? [[String: Any]] else {
+            throw ValidationError("Unable to read Info.plist from xcframework: \(path)")
+        }
+
+        guard let deviceLib = libraries.first(where: {
+            ($0["SupportedPlatform"] as? String) == "ios" && $0["SupportedPlatformVariant"] == nil
+        }) else {
+            throw ValidationError("No ios-arm64 (device) slice found in xcframework: \(path)")
+        }
+
+        guard let identifier = deviceLib["LibraryIdentifier"] as? String,
+              let libraryPath = deviceLib["LibraryPath"] as? String else {
+            throw ValidationError("Invalid library entry in xcframework Info.plist: \(path)")
+        }
+
+        let resolved = (path as NSString).appendingPathComponent(identifier)
+        let frameworkPath = (resolved as NSString).appendingPathComponent(libraryPath)
+
+        guard FileManager.default.fileExists(atPath: frameworkPath) else {
+            throw ValidationError("Resolved framework slice not found: \(frameworkPath)")
+        }
+
+        print("Resolved xcframework to: \(frameworkPath)")
+        return frameworkPath
+    }
+
     public mutating func run() throws {
         let resolvedIPA = (ipaPath as NSString).standardizingPath
-        let resolvedFW = (framework as NSString).standardizingPath
+        let resolvedFW = try resolveFrameworkPath((framework as NSString).standardizingPath)
 
         let outputPath = output ?? {
             let url = URL(fileURLWithPath: resolvedIPA)
