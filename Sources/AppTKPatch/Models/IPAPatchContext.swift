@@ -6,8 +6,8 @@ public struct IPAPatchContext {
     public let inputIPA: String
     public let frameworkPath: String
     public let outputIPA: String
-    public let signingIdentity: String?
-    public let provisioningProfile: String?
+    public var signingIdentity: String?
+    public var provisioningProfile: String?
     public let bundleID: String?
 
     // MARK: - Working state (set by steps during pipeline)

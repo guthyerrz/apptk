@@ -9,6 +9,7 @@ public struct IPAPatchPipeline {
     public init(context: IPAPatchContext) {
         var steps: [any PatchStep] = [
             IPAUnpackStep(),
+            SigningDetectStep(),
             FrameworkInjectStep(),
             LoadCommandInjectStep(),
         ]
@@ -17,14 +18,8 @@ public struct IPAPatchPipeline {
             steps.append(BundleIDPatchStep())
         }
 
-        if context.provisioningProfile != nil {
-            steps.append(ProvisioningReplaceStep())
-        }
-
-        if context.signingIdentity != nil {
-            steps.append(CodeSignStep())
-        }
-
+        steps.append(ProvisioningReplaceStep())
+        steps.append(CodeSignStep())
         steps.append(IPARepackStep())
 
         self.steps = steps

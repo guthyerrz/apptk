@@ -81,25 +81,7 @@ public enum IPAInfoParser {
     // MARK: - Codesign
 
     private static func parseCodesign(appDir: URL) -> (identity: String?, team: String?) {
-        guard let output = try? Shell.run("/usr/bin/codesign", arguments: ["-dvv", appDir.path]) else {
-            return (nil, nil)
-        }
-
-        var identity: String?
-        var team: String?
-
-        for line in output.split(separator: "\n") {
-            if line.hasPrefix("Authority=") {
-                if identity == nil {
-                    identity = String(line.dropFirst("Authority=".count))
-                }
-            }
-            if line.hasPrefix("TeamIdentifier=") {
-                team = String(line.dropFirst("TeamIdentifier=".count))
-            }
-        }
-
-        return (identity, team)
+        SigningDetector.detectIdentity(appDir: appDir)
     }
 
     // MARK: - Provisioning Profile

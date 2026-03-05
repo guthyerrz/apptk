@@ -45,9 +45,9 @@ struct IPAPatchCommandTests {
         )
 
         // No signing identity, no provisioning, no bundle ID
-        // Pipeline should only have: Unpack, FrameworkInject, LoadCommandInject, Repack
+        // Pipeline: Unpack, SigningDetect, FrameworkInject, LoadCommandInject, ProvisioningReplace, CodeSign, Repack
         let pipeline = IPAPatchPipeline(context: ctx)
-        #expect(pipeline.stepCount == 4)
+        #expect(pipeline.stepCount == 7)
     }
 
     @Test("IPAPatchPipeline includes all steps when fully configured")
@@ -61,8 +61,9 @@ struct IPAPatchCommandTests {
             bundleID: "com.new.id"
         )
 
+        // Pipeline: Unpack, SigningDetect, FrameworkInject, LoadCommandInject, BundleIDPatch, ProvisioningReplace, CodeSign, Repack
         let pipeline = IPAPatchPipeline(context: ctx)
-        #expect(pipeline.stepCount == 7)
+        #expect(pipeline.stepCount == 8)
     }
 
     @Test("IPAPatchError has descriptive messages")

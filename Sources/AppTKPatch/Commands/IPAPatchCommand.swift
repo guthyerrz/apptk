@@ -17,10 +17,10 @@ public struct IPAPatchCommand: ParsableCommand {
     @Option(name: [.short, .long], help: "Output path for the patched IPA (default: <name>-patched.ipa)")
     var output: String?
 
-    @Option(name: .long, help: "Code signing identity (e.g. 'Apple Development: ...')")
+    @Option(name: .long, help: "Code signing identity (auto-detected from IPA if omitted)")
     var signingIdentity: String?
 
-    @Option(name: .long, help: "Path to a .mobileprovision file")
+    @Option(name: .long, help: "Path to a .mobileprovision file (auto-detected from IPA if omitted)")
     var provisioningProfile: String?
 
     @Option(name: .long, help: "New CFBundleIdentifier to set")
