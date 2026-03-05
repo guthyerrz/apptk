@@ -5,10 +5,10 @@ import Foundation
 public struct InfoCommand: ParsableCommand {
     public static let configuration = CommandConfiguration(
         commandName: "info",
-        abstract: "Show app metadata (auto-detects APK or IPA by extension)"
+        abstract: "Show IPA app metadata"
     )
 
-    @Argument(help: "Path to an .ipa or .apk file")
+    @Argument(help: "Path to an .ipa file")
     var path: String
 
     public init() {}
@@ -20,12 +20,8 @@ public struct InfoCommand: ParsableCommand {
             var cmd = IPAInfoCommand()
             cmd.path = path
             try cmd.run()
-        case "apk":
-            var cmd = APKInfoCommand()
-            cmd.path = path
-            try cmd.run()
         default:
-            throw ValidationError("Unsupported file type '.\(ext)'. Expected .ipa or .apk")
+            throw ValidationError("Unsupported file type '.\(ext)'. Expected .ipa")
         }
     }
 }

@@ -2,36 +2,10 @@
 set -euo pipefail
 
 SWIFT_MIN="6.2"
-JAVA_MIN="17"
 PASS="\033[32m✓\033[0m"
 FAIL="\033[31m✗\033[0m"
 WARN="\033[33m⚠\033[0m"
 errors=0
-
-check_java() {
-  if ! command -v java &> /dev/null; then
-    echo -e "$FAIL java: not found"
-    errors=$((errors + 1))
-    return
-  fi
-
-  java_ver=$(java -version 2>&1 | sed -n 's/.*version "\([0-9]*\).*/\1/p')
-  if [ -z "$java_ver" ] || [ "$java_ver" -lt "$JAVA_MIN" ]; then
-    echo -e "$FAIL java: found $java_ver, need >= $JAVA_MIN"
-    errors=$((errors + 1))
-  else
-    echo -e "$PASS java $(java -version 2>&1 | head -1)"
-  fi
-}
-
-check_java_home() {
-  if [ -z "${JAVA_HOME:-}" ]; then
-    echo -e "$FAIL JAVA_HOME: not set"
-    errors=$((errors + 1))
-  else
-    echo -e "$PASS JAVA_HOME=$JAVA_HOME"
-  fi
-}
 
 check_just() {
   if ! command -v just &> /dev/null; then
@@ -105,8 +79,6 @@ swift_help() {
 
 echo "Checking apptk development environment..."
 echo ""
-check_java
-check_java_home
 check_just
 check_swiftly
 check_swift

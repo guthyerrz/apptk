@@ -1,16 +1,6 @@
 // swift-tools-version: 6.2
 
 import PackageDescription
-import class Foundation.ProcessInfo
-
-let javaHome = ProcessInfo.processInfo.environment["JAVA_HOME"]
-    ?? "/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
-let javaIncludePath = "\(javaHome)/include"
-#if os(macOS)
-let javaPlatformIncludePath = "\(javaIncludePath)/darwin"
-#elseif os(Linux)
-let javaPlatformIncludePath = "\(javaIncludePath)/linux"
-#endif
 
 let package = Package(
     name: "apptk",
@@ -22,7 +12,6 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
-        .package(url: "https://github.com/swiftlang/swift-java.git", branch: "main"),
     ],
     targets: [
         // MARK: - Executable
@@ -63,13 +52,6 @@ let package = Package(
             dependencies: [
                 "AppTKCore",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .product(name: "SwiftJava", package: "swift-java"),
-            ],
-            swiftSettings: [
-                .unsafeFlags(["-I\(javaIncludePath)", "-I\(javaPlatformIncludePath)"])
-            ],
-            plugins: [
-                .plugin(name: "SwiftJavaPlugin", package: "swift-java"),
             ]
         ),
 

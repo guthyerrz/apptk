@@ -1,17 +1,14 @@
 doctor:
     ./scripts/doctor.sh
 
-build-jar:
-    cd kotlin && ./gradlew jar
-
-build: build-jar
+build:
     swift build -c release
 
 test:
     swift test
 
-run *ARGS: build-jar
+run *ARGS:
     swift run apptk {{ARGS}}
 
 install: build
-    cp .build/release/apptk .build/release/libSwiftJava.dylib bin/
+    cp .build/release/apptk bin/
