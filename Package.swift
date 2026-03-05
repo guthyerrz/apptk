@@ -50,6 +50,12 @@ let package = Package(
             name: "AppTKCore"
         ),
 
+        // MARK: - Mach-O (pure Foundation, zero external deps)
+
+        .target(
+            name: "AppTKMachO"
+        ),
+
         // MARK: - Feature: Info
 
         .target(
@@ -89,6 +95,10 @@ let package = Package(
                 "AppTKInfo",
                 "AppTKCore",
             ]
+        ),
+        .testTarget(
+            name: "AppTKMachOTests",
+            dependencies: ["AppTKMachO"]
         ),
         .testTarget(
             name: "AppTKPatchTests",
