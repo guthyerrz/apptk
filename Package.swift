@@ -79,6 +79,7 @@ let package = Package(
             name: "AppTKPatch",
             dependencies: [
                 "AppTKCore",
+                "AppTKMachO",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ]
         ),
