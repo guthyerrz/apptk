@@ -2,10 +2,13 @@ import Foundation
 
 public enum Shell {
     @discardableResult
-    public static func run(_ command: String, arguments: [String] = []) throws -> String {
+    public static func run(_ command: String, arguments: [String] = [], workingDirectory: String? = nil) throws -> String {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: command)
         process.arguments = arguments
+        if let wd = workingDirectory {
+            process.currentDirectoryURL = URL(fileURLWithPath: wd)
+        }
 
         let pipe = Pipe()
         process.standardOutput = pipe

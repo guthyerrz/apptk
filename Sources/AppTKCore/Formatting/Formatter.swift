@@ -8,7 +8,26 @@ public enum Formatter {
     private static let cyan = "\u{1B}[36m"
     private static let green = "\u{1B}[32m"
     private static let yellow = "\u{1B}[33m"
+    private static let red = "\u{1B}[31m"
     private static let reset = "\u{1B}[0m"
+
+    // MARK: - Progress Output
+
+    public static func printStep(_ name: String, _ message: String) {
+        print("\(bold)\(cyan)[\(name)]\(reset) \(message)")
+    }
+
+    public static func printSuccess(_ message: String) {
+        print("\(bold)\(green)✓\(reset) \(message)")
+    }
+
+    public static func printWarning(_ message: String) {
+        print("\(bold)\(yellow)⚠\(reset) \(message)")
+    }
+
+    public static func printError(_ message: String) {
+        print("\(bold)\(red)✗\(reset) \(message)")
+    }
 
     // MARK: - IPA Info
 
