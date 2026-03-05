@@ -4,32 +4,19 @@ import Foundation
 public enum IPAInfoParser {
     public static func parse(ipaPath: String) throws -> IPAInfo {
         let fileManager = FileManager.default
-        let ipaURL = URL(fileURLWithPath: ipaPath)
 
         // File size
         let attrs = try fileManager.attributesOfItem(atPath: ipaPath)
         let fileSize = attrs[.size] as? UInt64 ?? 0
 
-        // Create temp directory and unzip
-        let tempDir = fileManager.temporaryDirectory.appendingPathComponent("apptk-\(UUID().uuidString)")
-        try fileManager.createDirectory(at: tempDir, withIntermediateDirectories: true)
-        defer { try? fileManager.removeItem(at: tempDir) }
+        // Extract IPA
+        let result = try IPAExtractor.extract(ipaPath: ipaPath)
+        defer { IPAExtractor.cleanup(tempDir: result.tempDir) }
 
-        try Shell.run("/usr/bin/unzip", arguments: ["-o", "-q", ipaURL.path, "-d", tempDir.path])
-
-        // Find .app bundle
-        let payloadDir = tempDir.appendingPathComponent("Payload")
-        guard fileManager.fileExists(atPath: payloadDir.path) else {
-            throw IPAParserError.invalidIPA("No Payload directory found")
-        }
-
-        let contents = try fileManager.contentsOfDirectory(at: payloadDir, includingPropertiesForKeys: nil)
-        guard let appDir = contents.first(where: { $0.pathExtension == "app" }) else {
-            throw IPAParserError.invalidIPA("No .app bundle found in Payload/")
-        }
+        let appDir = result.appDir
 
         // Read Info.plist
-        let plist = try readPlist(at: appDir.appendingPathComponent("Info.plist"))
+        let plist = try PlistReader.read(at: appDir.appendingPathComponent("Info.plist"))
 
         let bundleId = plist["CFBundleIdentifier"] as? String ?? "unknown"
         let appName = plist["CFBundleDisplayName"] as? String
@@ -41,10 +28,7 @@ public enum IPAInfoParser {
         let sdkVersion = plist["DTSDKName"] as? String
         let deviceFamily = resolveDeviceFamily(plist["UIDeviceFamily"] as? [Int] ?? [])
 
-        // Get executable name and architectures
-        let executableName = plist["CFBundleExecutable"] as? String ?? appDir.deletingPathExtension().lastPathComponent
-        let binaryPath = appDir.appendingPathComponent(executableName)
-        let architectures = parseArchitectures(binaryPath: binaryPath)
+        let architectures = parseArchitectures(binaryPath: result.binaryURL)
 
         // Signing info
         let (signingIdentity, teamName) = parseCodesign(appDir: appDir)
@@ -72,14 +56,9 @@ public enum IPAInfoParser {
         )
     }
 
-    // MARK: - Plist
-
+    // Delegate to PlistReader for backward compat
     public static func readPlist(at url: URL) throws -> [String: Any] {
-        let data = try Data(contentsOf: url)
-        guard let plist = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
-            throw IPAParserError.invalidIPA("Failed to parse plist at \(url.lastPathComponent)")
-        }
-        return plist
+        try PlistReader.read(at: url)
     }
 
     // MARK: - Architectures
