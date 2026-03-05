@@ -18,6 +18,10 @@ public struct IPAPatchPipeline {
             steps.append(BundleIDPatchStep())
         }
 
+        if !context.plistEntries.isEmpty {
+            steps.append(PlistAddStep())
+        }
+
         steps.append(ProvisioningReplaceStep())
         steps.append(CodeSignStep())
         steps.append(IPARepackStep())

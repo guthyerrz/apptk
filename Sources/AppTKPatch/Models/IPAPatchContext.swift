@@ -9,6 +9,7 @@ public struct IPAPatchContext {
     public var signingIdentity: String?
     public var provisioningProfile: String?
     public let bundleID: String?
+    public let plistEntries: [PlistEntry]
 
     // MARK: - Working state (set by steps during pipeline)
 
@@ -24,7 +25,8 @@ public struct IPAPatchContext {
         outputIPA: String,
         signingIdentity: String? = nil,
         provisioningProfile: String? = nil,
-        bundleID: String? = nil
+        bundleID: String? = nil,
+        plistEntries: [PlistEntry] = []
     ) {
         self.inputIPA = inputIPA
         self.frameworkPath = frameworkPath
@@ -32,5 +34,6 @@ public struct IPAPatchContext {
         self.signingIdentity = signingIdentity
         self.provisioningProfile = provisioningProfile
         self.bundleID = bundleID
+        self.plistEntries = plistEntries
     }
 }

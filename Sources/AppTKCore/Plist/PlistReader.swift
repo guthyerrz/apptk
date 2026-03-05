@@ -13,4 +13,25 @@ public enum PlistReader {
         let data = try PropertyListSerialization.data(fromPropertyList: dict, format: .xml, options: 0)
         try data.write(to: url)
     }
+
+    public static func setValue(_ value: Any, forKeyPath components: [String], in dict: inout [String: Any]) throws {
+        guard let first = components.first else { return }
+
+        if components.count == 1 {
+            dict[first] = value
+            return
+        }
+
+        let remaining = Array(components.dropFirst())
+        var nested = dict[first] as? [String: Any] ?? [:]
+
+        if dict[first] != nil && !(dict[first] is [String: Any]) {
+            throw IPAParserError.invalidIPA(
+                "Cannot traverse key path: '\(first)' exists but is not a dictionary"
+            )
+        }
+
+        try setValue(value, forKeyPath: remaining, in: &nested)
+        dict[first] = nested
+    }
 }

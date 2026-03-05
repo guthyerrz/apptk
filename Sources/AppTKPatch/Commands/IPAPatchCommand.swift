@@ -26,6 +26,15 @@ public struct IPAPatchCommand: ParsableCommand {
     @Option(name: .long, help: "New CFBundleIdentifier to set")
     var bundleId: String?
 
+    @Option(name: .long, parsing: .upToNextOption, help: "Add a string plist entry (KEY=VALUE, use : for nested keys)")
+    var plistString: [String] = []
+
+    @Option(name: .long, parsing: .upToNextOption, help: "Add a boolean plist entry (KEY=true|false, use : for nested keys)")
+    var plistBool: [String] = []
+
+    @Option(name: .long, parsing: .upToNextOption, help: "Add an integer plist entry (KEY=VALUE, use : for nested keys)")
+    var plistInt: [String] = []
+
     public init() {}
 
     public mutating func validate() throws {
@@ -52,6 +61,54 @@ public struct IPAPatchCommand: ParsableCommand {
         }
     }
 
+    private func parsePlistEntries() throws -> [PlistEntry] {
+        var entries: [PlistEntry] = []
+
+        for raw in plistString {
+            let (key, rawValue) = try splitEntry(raw, typeName: "string")
+            entries.append(PlistEntry(keyPath: key, value: rawValue))
+        }
+
+        for raw in plistBool {
+            let (key, rawValue) = try splitEntry(raw, typeName: "bool")
+            guard rawValue == "true" || rawValue == "false" else {
+                throw ValidationError("Invalid bool value for '\(key)': '\(rawValue)' (must be true or false)")
+            }
+            entries.append(PlistEntry(keyPath: key, value: rawValue == "true"))
+        }
+
+        for raw in plistInt {
+            let (key, rawValue) = try splitEntry(raw, typeName: "int")
+            guard let intValue = Int(rawValue) else {
+                throw ValidationError("Invalid int value for '\(key)': '\(rawValue)'")
+            }
+            entries.append(PlistEntry(keyPath: key, value: intValue))
+        }
+
+        return entries
+    }
+
+    private func splitEntry(_ raw: String, typeName: String) throws -> (String, String) {
+        guard let eqIndex = raw.firstIndex(of: "=") else {
+            throw ValidationError("Invalid --plist-\(typeName) format: '\(raw)' (expected KEY=VALUE)")
+        }
+        let key = String(raw[raw.startIndex..<eqIndex])
+        let value = String(raw[raw.index(after: eqIndex)...])
+
+        guard !key.isEmpty else {
+            throw ValidationError("Empty key in --plist-\(typeName): '\(raw)'")
+        }
+
+        let components = key.split(separator: ":")
+        for component in components {
+            guard !component.isEmpty else {
+                throw ValidationError("Empty key component in --plist-\(typeName): '\(key)'")
+            }
+        }
+
+        return (key, value)
+    }
+
     public mutating func run() throws {
         let resolvedIPA = (ipaPath as NSString).standardizingPath
         let resolvedFW = (framework as NSString).standardizingPath
@@ -62,13 +119,16 @@ public struct IPAPatchCommand: ParsableCommand {
             return url.deletingLastPathComponent().appendingPathComponent("\(name)-patched.ipa").path
         }()
 
+        let plistEntries = try parsePlistEntries()
+
         var context = IPAPatchContext(
             inputIPA: resolvedIPA,
             frameworkPath: resolvedFW,
             outputIPA: outputPath,
             signingIdentity: signingIdentity,
             provisioningProfile: provisioningProfile.map { ($0 as NSString).standardizingPath },
-            bundleID: bundleId
+            bundleID: bundleId,
+            plistEntries: plistEntries
         )
 
         let pipeline = IPAPatchPipeline(context: context)
