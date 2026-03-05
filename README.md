@@ -62,6 +62,9 @@ apptk patch ipa app.ipa \
 
 ## Roadmap
 
+- Parse provisioning profile files in pure Swift (remove `security cms` CLI dependency)
+- Show provisioning profile details in the `info` command (UUID, devices, capabilities, etc.)
+- Automatic signing with Apple account / App Store Connect API key
 - APK/Android support (inspect and patch Android packages)
 
 ## License
